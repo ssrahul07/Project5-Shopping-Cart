@@ -2,20 +2,22 @@ const mongoose = require("mongoose")
 
 const userSchema = new mongoose.Schema({
 
-    fname: { type: string, required: true },
-    email: { type: string, required: true, unique: true },
-    profileImage: { type: string, required: true },
-    password: { type: string, required: true },
+    fname: { type: String, required: true },
+    lname: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    profileImage: { type: String, required: true },
+    password: { type: String, required: true },
+    phone:{type:String,equired:true,unique:true},
     address: {
         shipping: {
-            street: { type: string, required: true },
-            city: { type: string, required: true },
-            pincode: { type: number, required: true }
+            street: { type: String, required: true },
+            city: { type: String, required: true },
+            pincode: { type: Number, required: true }
         },
         billing: {
-            street: { type: string, required: true },
-            city: { type: string, required: true },
-            pincode: { type: number, required: true }
+            street: { type: String, required: true },
+            city: { type: String, required: true },
+            pincode: { type: Number, required: true }
         }
     }
 }, { timestamps: true })
