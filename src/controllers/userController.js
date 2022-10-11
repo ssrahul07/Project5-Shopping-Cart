@@ -170,5 +170,64 @@ const createUser = async function(req, res){
     }
     
 }
-module.exports.createUser=createUser
 
+
+
+// -------------------------------login--------------------------------
+const login = async function (req, res) {
+  try {
+
+      if (req.body && Object.keys(req.body).length > 0) {
+
+          let { email, password } = req.body
+
+          if (!email || !password) return res.status(400).send({ status: false, msg: " Please, enter valid email id and password " })
+
+          let user = await userModel.findOne({ email: email, password: password })
+
+          if (!user) return res.status(401).send({ status: false, msg: " No such user exists" })
+
+          let token = jwt.sign(
+              {
+                  userId: user._id.toString(),
+                  iat: Math.floor(Date.now() / 1000),
+                  exp: Math.floor(Date.now() / 1000) + 120,
+                  groupNo: "22"
+
+              }, "secretKeyForgroup22")
+
+         
+
+              res.status(200).send({
+                  status: true,
+                  message: "User login successfully",
+                  data: { userId: user._id, token: token },
+                });
+
+      } else {
+          return res.status(400).send({ status: false, msg: "body can't be empty" })
+      }
+
+  } catch (error) {
+      return res.status(500).send({ status: false, err: error.message })
+  }
+}
+
+
+// -------------------------getuserprofile-------------------------
+const getUserProfile = async function (req, res) {
+  try {
+      let userId = req.params.userId
+      if (!mongoose.Types.ObjectId.isValid(userId)) { return res.status(400).send({ status: false, message: "userId is not valid" }) }
+
+      const user = await userModel.findOne({ _id: userId })
+      if (!user) {
+          return res.status(404).send({ send: false, message: "No profile available with this userId" })
+      }
+      return res.status(200).send({ status: true, message: "User profile details", data: user })
+  } catch (error) {
+      return res.status(500).send({ status: false, message: error.message })
+
+  }
+}
+module.exports = {createUser , login ,  getUserProfile}
