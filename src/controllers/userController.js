@@ -109,7 +109,7 @@ const createUser = async function(req, res){
             const { shipping, billing } = address
             if (!(isValid(shipping) || isValid(billing) )) return res.status(400).send({ status: false, message: "We are looking for sipping,billing value only inside Address Object" })
             else {
-                if (address.shipping) {
+                if (shipping) {
                     if (Object.keys(shipping).length == 0) return res.status(400).send({ status: false, message: "Address must contain street, city, pincode" })
                     else {
                         const { street, city, pincode } = shipping
@@ -186,5 +186,88 @@ const createUser = async function(req, res){
     }
     
 }
+
+
+//-----------------------------loginApi------------------
+const login = async function (req, res) {
+    try {
+
+        if (req.body && Object.keys(req.body).length > 0) {
+
+            let { email, password } = req.body
+
+            if (!email || !password) return res.status(400).send({ status: false, msg: " Please, enter valid email id and password " })
+
+            let user = await userModel.findOne({ email: email, password: password })
+
+            if (!user) return res.status(401).send({ status: false, msg: " No such user exists" })
+
+            let token = jwt.sign(
+                {
+                    userId: user._id.toString(),
+                    iat: Math.floor(Date.now() / 1000),
+                    exp: Math.floor(Date.now() / 1000) + 120,
+                    groupNo: "22"
+
+                }, "secretKeyForgroup22")
+
+           
+
+                res.status(200).send({
+                    status: true,
+                    message: "User login successfully",
+                    data: { userId: user._id, token: token },
+                  });
+
+        } else {
+            return res.status(400).send({ status: false, msg: "body can't be empty" })
+        }
+
+    } catch (error) {
+        return res.status(500).send({ status: false, err: error.message })
+    }
+
+}
+
+
+
+
+//--------------------------getAPI------------------------------
+
+let getUserProfile = async function(req,res){
+    try{
+        let userId = req.params.userId
+
+        if(!userId){
+            return res.status(400).send({status:false,message:"Invalid UserId"})
+        };
+
+        let userData = await userModel.findById(userId)
+        if (!userData) {
+            return res.status(400).send({
+              status: false,
+              message: "such type user not exist",
+            });
+          }
+      
+          
+          if (req.userId !== userId) {
+            return res.status(400).send({
+              status: false,
+              message: "No such user exixt with this id ${userId}" });
+          }
+      
+          res.status(200).send({status: true, message: "get User profile details successfull",data: userData});
+
+    }catch(error){
+        return res.status(500).send({status:false,msg:error.message})
+    }
+}
+
+
+
+
 module.exports.createUser=createUser
+module.exports.login=login
+module.exports.getUserProfile=getUserProfile
 
