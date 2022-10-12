@@ -160,7 +160,7 @@ const createUser = async function (req, res) {
 const login = async function (req, res) {
   try {
     if (req.body && Object.keys(req.body).length > 0) {
-        let { email, password } = req.body
+      let { email, password } = req.body
       if (!isValid(email))
         return res.status(400).send({ status: false, message: "email is required" })
       if (!email.match(emailregex))
@@ -182,7 +182,7 @@ const login = async function (req, res) {
           groupNo: "22"
 
         }, "secretKeyForgroup22", { expiresIn: "12hr" })
-      res.status(200).send({ status: true, message: "User login successfully", data:{ userId: user._id, token: token}});
+      res.status(200).send({ status: true, message: "User login successfully", data: { userId: user._id, token: token } });
 
     } else {
       return res.status(400).send({ status: false, msg: "body can't be empty" })
@@ -214,8 +214,91 @@ const getUserProfile = async function (req, res) {
 // ----------------------update----------------------------------
 const updateProfile = async function (req, res) {
   try {
+    let requestQuery = req.params["userId"]
+    if (!requestQuery)
+      return res.status(400).send({ status: false, msg: `please provide ${userId}` })
+    if (!mongoose.Types.ObjectId.isValid(userId))
+      return res.status(400).send({ status: false, msg: `please provide valid ${userId}` })
+    const userIdIsPresent = await userModel.findById(userId)
+    if (!userIdIsPresent) return res.status(400).send({ status: false, msg: `no such user with this ${userId} exist` })
+    const requestbody=req.body
+    let { fname, lname, email, password, phone, address, profileImage, ...rest } = requestbody
+    if (Object.keys(req.body).length == 0)
+      return res.status(400).send({ status: false, message: "Data is required in Request Body" })
+    // if(Object.keys(rest).length > 0)
+    // return res.status(400).send({ status: false, message: "Data is required in Request Body" })
+    if (!isValid(fname)) {
+      return res.status(400).send({ status: false, msg: "first name is required" })
+    }
+    if (!isValid(lname)) {
+      return res.status(400).send({ status: false, msg: "last name is required" })
+    }
+    if (!isValid(phone))
+      return res.status(400).send({ status: false, message: "phone number must be prasent" })
+    if (!phone.match(phoneregex))
+      return res.status(400).send({ status: false, message: "phone number must be in a valid format" })
+    const isPhoneAlreadyUsed = await userModel.findOne({ phone: phone })
+    if (isPhoneAlreadyUsed)
+      return res.status(400).send({ status: false, message: "phone number already registered" })
+    if (!isValid(email))
+      return res.status(400).send({ status: false, message: "email is required" })
+    if (!email.match(emailregex))
+      return res.status(400).send({ status: false, message: "email should be valid" })
+    let emailAlreadyUsed = await userModel.findOne({ email: email })
+    if (emailAlreadyUsed)
+      return res.status(400).send({ status: false, message: "email already registered" })
+    if (!isValid(password))
+      return res.status(400).send({ status: false, message: "password is required" })
+    if (!password.match(passwordregex))
+      return res.status(400).send({ status: false, message: "password should be valid" })
+    let encryptedPassword = bcrypt
+      .hash(requestbody.password, saltRound)
+      .then((hash) => {
+        console.log(`Hash: ${hash}`);
+        return hash;
+      });
 
+    requestbody.password = await encryptedPassword;
+    //===========================================ADDRESS==============================================
+    if (!isValidAddress(address)) {
+      return res.status(400).send({ status: false, message: "Address is required!" });
+    }
+    let arr1 = ["shipping", "billing"];
+    let arr2 = ["street", "city", "pincode"];
+    for (let i = 0; i < arr1.length; i++) {
+      if (!requestbody.address[arr1[i]])
+        return res.status(400).send({ status: false, msg: `${arr1[i]} is mandatory` });
+      for (let j = 0; j < arr2.length; j++) {
+        if (!requestbody.address[arr1[i]][arr2[j]])
+          return res.status(400).send({ status: false, msg: `In  ${arr1[i]}, ${arr2[j]} is mandatory` });
+      }
 
+      if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
+        return res.status(400).send({
+          status: false,
+          message: `In ${arr1[i]} , city is invalid`,
+        });
+      }
+
+      if (!isValidPincode(requestbody.address[arr1[i]].pincode)) {
+        return res.status(400).send({
+          status: false,
+          message: `In ${arr1[i]} , pincode is invalid`,
+        });
+      }
+    }
+     const updates={
+      fname:fname,
+      lname:lname,
+      email:email,
+      profileImage:profileImage,
+      phone:phone,
+      password:password,
+      address:address
+     }
+    
+    const updatedUser=await userModel.findByIdAndUpdate({_id:userId},{$set:{...updates}},{new:true})
+    return res.status(200).send({status:true,msg:"data updated successfully",data:updatedUser})
 
 
 
