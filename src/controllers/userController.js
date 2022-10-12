@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const saltRound = 10
 const userModel = require('../models/userModel')
-const aws = require('aws-sdk')
+const { uploadFile } = require("../aws/aws");
 const jwt = require("jsonwebtoken")
 
 // --------------------------Validations------------------------------------------------------------
@@ -27,40 +27,11 @@ const isValidPincode = function (data) {
 const isValidOnlyCharacters = function (data) {
   return /^[A-Za-z ]+$/.test(data)
 }
-const isNotEmpty = function (value) {
-  if (value.trim().length != 0)
-    return true;
-  return false;
-}
+
 const phoneregex = /^([6-9]\d{9})$/
 const emailregex = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
 const passwordregex = /^[a-zA-Z0-9!@#$%^&*]{8,15}$/
 
-/* ------------------------------------------------aws config -------------------------------------------------------- */
-aws.config.update({
-  accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
-  secretAccessKey: "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",
-  region: "ap-south-1"
-});
-
-/* ------------------------------------------------aws fileUpload-------------------------------------------------------- */
-let uploadFile = async (file) => {
-  return new Promise(function (resolve, reject) {
-    let s3 = new aws.S3({ apiVersion: "2006-03-01" });
-
-    var uploadParams = {
-      ACL: "public-read",
-      Bucket: "classroom-training-bucket",
-      Key: "user/" + file.originalname,
-      Body: file.buffer,
-    };
-    s3.upload(uploadParams, function (err, data) {
-      if (err) return reject({ error: err });
-
-      return resolve(data.Location);
-    });
-  });
-};
 
 
 const createUser = async function (req, res) {
