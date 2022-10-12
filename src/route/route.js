@@ -17,6 +17,7 @@ route.get("/user/:userId/profile" , middleware.Authenticate ,userController.getU
 // ---------------updateUserProfile--------------
 route.put("/user/:userId/profile" ,middleware.Authenticate , middleware.Authorization , userController.updateProfile)
 
+route.post("/products",productController.createProduct)
 
 // -------------------getProductById--------------------
 route.get("/products/:productId" ,productController.ProductById )
