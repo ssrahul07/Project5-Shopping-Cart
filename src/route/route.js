@@ -1,6 +1,7 @@
 const express = require('express');
 const route = express.Router();
 const userController=require("../controllers/userController")
+const productController = require("../controllers/productController")
 const middleware = require("../middleware/auth")
 
 // ------------------register-------------------
@@ -15,6 +16,14 @@ route.get("/user/:userId/profile" , middleware.Authenticate ,userController.getU
 
 // ---------------updateUserProfile--------------
 route.put("/user/:userId/profile" ,middleware.Authenticate , middleware.Authorization , userController.updateProfile)
+
+
+// -------------------getProductById--------------------
+route.get("/products/:productId" ,productController.ProductById )
+
+// --------------------deleteProduct-----------------------
+route.delete("/products/:productId" ,productController.deleteProduct)
+
 
 route.all("/*", function (req, res) {
     res.status(400).send({status: false,message: "The api you request is not available"})

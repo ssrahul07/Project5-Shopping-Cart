@@ -38,7 +38,7 @@ const createUser = async function (req, res) {
 
   try {
     let requestbody = req.body
-    let requestQuery = req.query
+    let userId = req.query
     let files = req.files
     let fileUrl = await uploadFile(files[0]);
     requestbody.profileImage = fileUrl;
@@ -46,7 +46,7 @@ const createUser = async function (req, res) {
       return res.
         status(400).
         send({ status: false, message: "Data is required in Request Body" })
-    if (Object.keys(requestQuery).length > 0)
+    if (Object.keys(userId).length > 0)
       return res.
         status(400).
         send({ status: false, message: "Invalid entry in Request Query" })
@@ -185,8 +185,8 @@ const getUserProfile = async function (req, res) {
 // ----------------------update----------------------------------
 const updateProfile = async function (req, res) {
   try {
-    let requestQuery = req.params["userId"]
-    if (!requestQuery)
+    let userId = req.params["userId"]
+    if (!userId)
       return res.status(400).send({ status: false, msg: `please provide ${userId}` })
     if (!mongoose.Types.ObjectId.isValid(userId))
       return res.status(400).send({ status: false, msg: `please provide valid ${userId}` })
@@ -198,52 +198,49 @@ const updateProfile = async function (req, res) {
       return res.status(400).send({ status: false, message: "Data is required in Request Body" })
     // if(Object.keys(rest).length > 0)
     // return res.status(400).send({ status: false, message: "Data is required in Request Body" })
-    if (!isValid(fname)) {
-      return res.status(400).send({ status: false, msg: "first name is required" })
+    if (fname) {
+      if(!isValidOnlyCharacters(fname))
+      return res.status(400).send({ status: false, msg: "first name should be valid" })
     }
-    if (!isValid(lname)) {
-      return res.status(400).send({ status: false, msg: "last name is required" })
+    if (lname) {
+      if(!isValidOnlyCharacters(lname))
+      return res.status(400).send({ status: false, msg: "last name should be valid" })
     }
-    if (!isValid(phone))
-      return res.status(400).send({ status: false, message: "phone number must be prasent" })
-    if (!phone.match(phoneregex))
+    if (phone){
+      
+        if (!phone.match(phoneregex))
       return res.status(400).send({ status: false, message: "phone number must be in a valid format" })
-    const isPhoneAlreadyUsed = await userModel.findOne({ phone: phone })
-    if (isPhoneAlreadyUsed)
-      return res.status(400).send({ status: false, message: "phone number already registered" })
-    if (!isValid(email))
-      return res.status(400).send({ status: false, message: "email is required" })
-    if (!email.match(emailregex))
+       const isPhoneAlreadyUsed = await userModel.findOne({ phone: phone })
+      if (isPhoneAlreadyUsed)
+      return res.status(400).send({ status: false, message: "phone number already registered" })}
+    if (email){
+      
+      if (!email.match(emailregex))
       return res.status(400).send({ status: false, message: "email should be valid" })
-    let emailAlreadyUsed = await userModel.findOne({ email: email })
-    if (emailAlreadyUsed)
+      let emailAlreadyUsed = await userModel.findOne({ email: email })
+      if (emailAlreadyUsed)
       return res.status(400).send({ status: false, message: "email already registered" })
-    if (!isValid(password))
-      return res.status(400).send({ status: false, message: "password is required" })
+    }
+
+    if (password){
+      
     if (!password.match(passwordregex))
       return res.status(400).send({ status: false, message: "password should be valid" })
-    let encryptedPassword = bcrypt
+       let encryptedPassword = bcrypt
       .hash(requestbody.password, saltRound)
       .then((hash) => {
         console.log(`Hash: ${hash}`);
         return hash;
       });
 
-    requestbody.password = await encryptedPassword;
-    //===========================================ADDRESS==============================================
-    if (!isValidAddress(address)) {
-      return res.status(400).send({ status: false, message: "Address is required!" });
+     requestbody.password = await encryptedPassword;
     }
-    let arr1 = ["shipping", "billing"];
-    let arr2 = ["street", "city", "pincode"];
-    for (let i = 0; i < arr1.length; i++) {
-      if (!requestbody.address[arr1[i]])
-        return res.status(400).send({ status: false, msg: `${arr1[i]} is mandatory` });
-      for (let j = 0; j < arr2.length; j++) {
-        if (!requestbody.address[arr1[i]][arr2[j]])
-          return res.status(400).send({ status: false, msg: `In  ${arr1[i]}, ${arr2[j]} is mandatory` });
-      }
-
+    //===========================================ADDRESS==============================================
+    if (address) {
+      
+      let arr1 = ["shipping", "billing"];
+        
+       for (let i=0;i<arr1.length;i++){
       if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
         return res.status(400).send({
           status: false,
@@ -257,7 +254,8 @@ const updateProfile = async function (req, res) {
           message: `In ${arr1[i]} , pincode is invalid`,
         });
       }
-    }
+        }}
+    
      const updates={
       fname:fname,
       lname:lname,
