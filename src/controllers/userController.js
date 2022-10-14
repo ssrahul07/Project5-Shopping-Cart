@@ -25,7 +25,9 @@ const isValidPincode = function (data) {
   return false
 }
 const isValidOnlyCharacters = function (data) {
+  if(data=== undefined) return false
   return /^[A-Za-z ]+$/.test(data)
+
 }
 
 const phoneregex = /^([6-9]\d{9})$/
@@ -241,19 +243,23 @@ const updateProfile = async function (req, res) {
       let arr1 = ["shipping", "billing"];
         
        for (let i=0;i<arr1.length;i++){
-      if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
-        return res.status(400).send({
-          status: false,
-          message: `In ${arr1[i]} , city is invalid`,
-        });
-      }
-
-      if (!isValidPincode(requestbody.address[arr1[i]].pincode)) {
-        return res.status(400).send({
-          status: false,
-          message: `In ${arr1[i]} , pincode is invalid`,
-        });
-      }
+        if(arr1[i] in address){
+          if(city in address[arr1[i]]){
+          if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
+            return res.status(400).send({
+              status: false,
+              message: `In ${arr1[i]} , city is invalid`,
+            });
+          }}
+          if(pincode in address[arr1[i]]){
+          if (!isValidPincode(requestbody.address[arr1[i]].pincode)) {
+            return res.status(400).send({
+              status: false,
+              message: `In ${arr1[i]} , pincode is invalid`,
+            });
+          }
+        }}
+      
         }}
     
      const updates={
