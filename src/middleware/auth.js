@@ -6,12 +6,12 @@ const userModel = require("../models/userModel")
 const Authenticate = async function (req, res, next) {
     try {
         let token = req.headers["authorization"];
-        // console.log(token)
+        console.log(token)
 
         if (!token) return res.status(400).send({ status: false, msg: "Token must be present in the request header" })
-        let token1 = token.split(" ").pop()
-        // console.log(token1)
-        jwt.verify(token1, "secretKeyForgroup22", (error, decodedToken) => {
+        token = token.replace("Bearer " , "")
+        console.log(token)
+        jwt.verify(token , "secretKeyForgroup22", (error, decodedToken) => {
             if (error) {
                 return res.status(401).send({ status: false, error:error.message })
             }

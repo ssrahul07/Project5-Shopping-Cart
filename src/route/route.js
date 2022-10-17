@@ -17,11 +17,20 @@ route.get("/user/:userId/profile" , middleware.Authenticate ,userController.getU
 // ---------------updateUserProfile--------------
 route.put("/user/:userId/profile" ,middleware.Authenticate , middleware.Authorization , userController.updateProfile)
 
+// ----------------------productCreation------------------
 route.post("/products",productController.createProduct)
+
+// --------------------------getProducts-------------
+route.get("/products" , productController.getProductByFilter)
 
 // -------------------getProductById--------------------
 route.get("/products/:productId" ,productController.ProductById )
-route.get("/products" ,productController.getProductByFilter )
+
+
+// ----------------updateProduct-----------------------
+route.put("/products/:productId" ,productController.updateProduct)
+
+
 // --------------------deleteProduct-----------------------
 route.delete("/products/:productId" ,productController.deleteProduct)
 route.put("/products/:productId" ,productController.updateProduct)
