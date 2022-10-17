@@ -21,10 +21,10 @@ route.post("/products",productController.createProduct)
 
 // -------------------getProductById--------------------
 route.get("/products/:productId" ,productController.ProductById )
-
+route.get("/products" ,productController.getProductByFilter )
 // --------------------deleteProduct-----------------------
 route.delete("/products/:productId" ,productController.deleteProduct)
-
+route.put("/products/:productId" ,productController.updateProduct)
 
 route.all("/*", function (req, res) {
     res.status(400).send({status: false,message: "The api you request is not available"})
