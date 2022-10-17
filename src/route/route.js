@@ -2,6 +2,7 @@ const express = require('express');
 const route = express.Router();
 const userController=require("../controllers/userController")
 const productController = require("../controllers/productController")
+const cartController=require("../controllers/cartController")
 const middleware = require("../middleware/auth")
 
 // ------------------register-------------------
@@ -33,6 +34,18 @@ route.put("/products/:productId" ,productController.updateProduct)
 
 // --------------------deleteProduct-----------------------
 route.delete("/products/:productId" ,productController.deleteProduct)
+
+
+// --------------------createCart-----------------------
+route.post("/users/:userId/cart",cartController.createCart)
+// --------------------------getcart-------------
+route.get("/users/:userId/cart" ,cartController.getCart )
+// ----------------updateCart-----------------------
+route.put("/users/:userId/cart" ,cartController.updateCart)
+// --------------------deleteProduct-----------------------
+route.delete("/users/:userId/cart" ,cartController.deleteCart)
+
+
 
 
 route.all("/*", function (req, res) {
