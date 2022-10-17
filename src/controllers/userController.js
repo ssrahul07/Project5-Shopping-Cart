@@ -25,7 +25,7 @@ const isValidPincode = function (data) {
   return false
 }
 const isValidOnlyCharacters = function (data) {
-  if(data=== undefined) return false
+  if (data === undefined) return false
   return /^[A-Za-z ]+$/.test(data)
 
 }
@@ -145,7 +145,7 @@ const login = async function (req, res) {
       let user = await userModel.findOne({ email: email })
       console.log(user)
 
-      if (!user) return res.status(401).send({ status: false, msg: " No such user exists" })
+      if (!user) return res.status(404).send({ status: false, msg: " No such user exists" })
       const compare = await bcrypt.compare(password, user.password);
       if (!compare) return res.status(200).send({ status: false, msg: "incorrect password" })
 
@@ -185,7 +185,8 @@ const getUserProfile = async function (req, res) {
 }
 
 // ----------------------update----------------------------------
-const updateProfile = async function (req, res) {
+const updateProfile = async function (req, res)
+{
   try {
     let userId = req.params["userId"]
     if (!userId)
@@ -194,93 +195,110 @@ const updateProfile = async function (req, res) {
       return res.status(400).send({ status: false, msg: `please provide valid ${userId}` })
     const userIdIsPresent = await userModel.findById(userId)
     if (!userIdIsPresent) return res.status(400).send({ status: false, msg: `no such user with this ${userId} exist` })
-    const requestbody=req.body
+    const requestbody = req.body
     let { fname, lname, email, password, phone, address, profileImage, ...rest } = requestbody
     if (Object.keys(req.body).length == 0)
       return res.status(400).send({ status: false, message: "Data is required in Request Body" })
     // if(Object.keys(rest).length > 0)
     // return res.status(400).send({ status: false, message: "Data is required in Request Body" })
     if (fname) {
-      if(!isValidOnlyCharacters(fname))
-      return res.status(400).send({ status: false, msg: "first name should be valid" })
+      if (!isValidOnlyCharacters(fname))
+        return res.status(400).send({ status: false, msg: "first name should be valid" })
     }
     if (lname) {
-      if(!isValidOnlyCharacters(lname))
-      return res.status(400).send({ status: false, msg: "last name should be valid" })
+      if (!isValidOnlyCharacters(lname))
+        return res.status(400).send({ status: false, msg: "last name should be valid" })
     }
-    if (phone){
-      
-        if (!phone.match(phoneregex))
-      return res.status(400).send({ status: false, message: "phone number must be in a valid format" })
-       const isPhoneAlreadyUsed = await userModel.findOne({ phone: phone })
+    if (phone) {
+
+      if (!phone.match(phoneregex))
+        return res.status(400).send({ status: false, message: "phone number must be in a valid format" })
+      const isPhoneAlreadyUsed = await userModel.findOne({ phone: phone })
       if (isPhoneAlreadyUsed)
-      return res.status(400).send({ status: false, message: "phone number already registered" })}
-    if (email){
-      
+        return res.status(400).send({ status: false, message: "phone number already registered" })
+    }
+    if (email) {
+
       if (!email.match(emailregex))
-      return res.status(400).send({ status: false, message: "email should be valid" })
+        return res.status(400).send({ status: false, message: "email should be valid" })
       let emailAlreadyUsed = await userModel.findOne({ email: email })
       if (emailAlreadyUsed)
-      return res.status(400).send({ status: false, message: "email already registered" })
+        return res.status(400).send({ status: false, message: "email already registered" })
     }
 
-    if (password){
-      
-    if (!password.match(passwordregex))
-      return res.status(400).send({ status: false, message: "password should be valid" })
-       let encryptedPassword = bcrypt
-      .hash(requestbody.password, saltRound)
-      .then((hash) => {
-        console.log(`Hash: ${hash}`);
-        return hash;
-      });
+    if (password) {
 
-     requestbody.password = await encryptedPassword;
+      if (!password.match(passwordregex))
+        return res.status(400).send({ status: false, message: "password should be valid" })
+      let encryptedPassword = bcrypt
+        .hash(requestbody.password, saltRound)
+        .then((hash) => {
+          console.log(`Hash: ${hash}`);
+          return hash;
+        });
+
+      requestbody.password = await encryptedPassword;
     }
     //===========================================ADDRESS==============================================
     if (address) {
-      
+      if(Object.keys(address).length>0)return res.status(400).send({status:false,msg:"in address there should be either billing or shipping"})
       let arr1 = ["shipping", "billing"];
-        
-       for (let i=0;i<arr1.length;i++){
-        if(arr1[i] in address){
-          if(city in address[arr1[i]]){
-          if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
-            return res.status(400).send({
-              status: false,
-              message: `In ${arr1[i]} , city is invalid`,
-            });
-          }}
-          if(pincode in address[arr1[i]]){
-          if (!isValidPincode(requestbody.address[arr1[i]].pincode)) {
-            return res.status(400).send({
-              status: false,
-              message: `In ${arr1[i]} , pincode is invalid`,
-            });
+      // if(Object.keys(billing).length>0)return res.status(400).send({status:false,msg:"in billing there should be either pincode or street or city"})
+      // if(Object.keys(shipping).length>0)return res.status(400).send({status:false,msg:"in shipping there should be either pincode or street or city"})
+      for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] in address) {
+          if (city in address[arr1[i]]) {
+            if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
+              return res.status(400).send({
+                status: false,
+                message: `In ${arr1[i]} , city is invalid`,
+              });
+            }
           }
-        }}
-      
-        }}
-    
-     const updates={
-      fname:fname,
-      lname:lname,
-      email:email,
-      profileImage:profileImage,
-      phone:phone,
-      password:password,
-      address:address
-     }
-    
-    const updatedUser=await userModel.findByIdAndUpdate({_id:userId},{$set:{...updates}},{new:true})
-    return res.status(200).send({status:true,msg:"data updated successfully",data:updatedUser})
+          if (pincode in address[arr1[i]]) {
+            if (!isValidPincode(requestbody.address[arr1[i]].pincode)) {
+              return res.status(400).send({
+                status: false,
+                message: `In ${arr1[i]} , pincode is invalid`,
+              });
+            }
+          }
+          // if (street in address[arr1[i]]) {
+          //   // if (!isValidPincode(requestbody.address[arr1[i]].street)) {
+          //   //   return res.status(400).send({
+          //   //     status: false,
+          //   //     message: `In ${arr1[i]} , street is invalid`,
+          //   //   });
+          //   }
+          // }
+        }
+
+
+      }
+
+    }
+
+
+    const updates = {
+    fname: fname,
+    lname: lname,
+    email: email,
+    profileImage: profileImage,
+    phone: phone,
+    password: password,
+    address: address
+    }
+
+
+    const updatedUser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: { ...updates } }, { new: true })
+    return res.status(200).send({ status: true, msg: "data updated successfully", data: updatedUser })
 
 
 
   } catch (error) {
-    return res.status(500).send({ status: false, message: error.message })
+  return res.status(500).send({ status: false, message: error.message })
 
   }
-
 }
+
 module.exports = { createUser, login, getUserProfile, updateProfile }
