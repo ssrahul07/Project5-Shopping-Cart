@@ -3,6 +3,7 @@ const route = express.Router();
 const userController=require("../controllers/userController")
 const productController = require("../controllers/productController")
 const cartController=require("../controllers/cartController")
+const orderController=require('../controllers/orderController')
 const middleware = require("../middleware/auth")
 
 // ------------------register-------------------
@@ -45,6 +46,10 @@ route.put("/users/:userId/cart" ,cartController.updateCart)
 // --------------------deleteProduct-----------------------
 route.delete("/users/:userId/cart" ,cartController.deleteCart)
 
+// --------------------createorder-----------------------
+route.post("/users/:userId/orders",orderController.createOrder )
+// ----------------updateOrder-----------------------
+route.put("/users/:userId/orders" ,orderController.updateOrder)
 
 
 

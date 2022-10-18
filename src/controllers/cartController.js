@@ -88,11 +88,14 @@ const createCart = async function (req, res) {
                 "totalPrice": checkProduct.price,
                 "totalItems": 1
             }
-            const createCart1 = await cartModel.create(dataForCreate).populate("items.productId",("price title description productImage availableSizes"))
-
-            return res.status(201).send({ status: true, message: "Card Created", data: createCart1 })
-
+             await cartModel.create(dataForCreate)
+            // .populate("items.productId",("price title description productImage availableSizes"))
+            const finalCart = await cartModel.findOne(dataForCreate).populate({ path: 'items.productId', select: { '_id': 1, 'title': 1, 'price': 1, 'productImage': 1, 'description': 1 } })
+            return res.status(201).send({ status: true, message: "Success", data: finalCart });
         }
+           
+
+        
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
     }
