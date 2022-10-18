@@ -6,11 +6,11 @@ const userModel = require("../models/userModel")
 const Authenticate = async function (req, res, next) {
     try {
         let token = req.headers["authorization"];
-        console.log(token)
+        // console.log(token)
 
-        if (!token) return res.status(400).send({ status: false, msg: "Token must be present in the request header" })
+        if (!token) return res.status(400).send({ status: false, message: "Token must be present in the request header" })
         token = token.replace("Bearer " , "")
-        console.log(token)
+        // console.log(token)
         jwt.verify(token , "secretKeyForgroup22", (error, decodedToken) => {
             if (error) {
                 return res.status(401).send({ status: false, error:error.message })
@@ -21,7 +21,7 @@ const Authenticate = async function (req, res, next) {
             }
         })
     } catch (error) {
-        return res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 // -----------------------------------Authorization----------------------------------
@@ -33,7 +33,7 @@ const Authorization = async function (req, res, next) {
     try {
         //****USERID VALIDATION***** */
        const userId=req.params.userId
-       if(!userId) return res.status(400).send({status:false,msg:"userId is must"})
+       if(!userId) return res.status(400).send({status:false,message:"userId is must"})
        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "userId is invalid" });
        const decodedToken = req.decodedToken
        const userbyuserId= await userModel.findOne({"_id": userId, isDeleted: false})
@@ -44,7 +44,7 @@ const Authorization = async function (req, res, next) {
         if (decodedToken.userId !=userbyuserId._id) return res.status(403).send({ status: false, message: "unauthorize access" });
         next()
     } catch (error) {
-        return res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 

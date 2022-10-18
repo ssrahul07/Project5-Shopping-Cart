@@ -81,12 +81,12 @@ const updateOrder = async function (req, res) {
                 message: "Order completed, now its status can not be updated",
             });
         }
-        if(orderData.status==="cancelled"&& orderata.cancellable===false){
+        if(status==="cancelled"&& orderData.cancellable===false){
         return res.status(400).send({
              status: false, message: "This order can not be cancelled" 
             })
         }
-        if (orderData.status === "pending") {
+        if (status === "pending") {
             return res.status(400).send({ 
                 status: false,
                  message: "order status is already pending"
