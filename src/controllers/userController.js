@@ -54,7 +54,7 @@ const createUser = async function (req, res) {
     // Destructering
 
     const { fname, lname, email, password, phone, address,profileImage} = requestbody
-    console.log(requestbody)
+    // console.log(requestbody)
     if (files && files.length > 0) {
 
       let fileUrl = await uploadFile(files[0]);

@@ -71,40 +71,20 @@ const updateOrder = async function (req, res) {
             return res.status(404).send({ status: false,  message: `no order found by ${orderId} ` }) 
         }
         if(!["pending", "completed", "cancelled"].includes(status))
-        return res.status(400).send({
-            status: false,
-            message: "status should be from [pending, completed, cancelled]",
-        });
+        return res.status(400).send({status: false,message: "status should be from [pending, completed, cancelled]"});
         if(orderData.status==="completed"){
-            return res.status(400).send({
-                status: false,
-                message: "Order completed, now its status can not be updated",
-            });
+            return res.status(400).send({status: false,message: "Order completed, now its status can not be updated"});
         }
         if(status==="cancelled"&& orderData.cancellable===false){
-        return res.status(400).send({
-             status: false, message: "This order can not be cancelled" 
-            })
+        return res.status(400).send({status: false, message: "This order can not be cancelled"})
         }
         if (status === "pending") {
-            return res.status(400).send({ 
-                status: false,
-                 message: "order status is already pending"
-                 });
+            return res.status(400).send({status: false,message: "order status is already pending" });
         }
 
         const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status } }, { new: true });
 
-        res.status(200).send({
-            status: true,
-            message: "order status updated",
-            data: updateStatus,
-        });
-
-    
-
-
-
+        res.status(200).send({status: true, message: "order status updated",data: updateStatus});
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }
