@@ -38,18 +38,19 @@ route.delete("/products/:productId" ,productController.deleteProduct)
 
 
 // --------------------createCart-----------------------
-route.post("/users/:userId/cart",cartController.createCart)
+route.post("/users/:userId/cart",middleware.Authenticate , middleware.Authorization,cartController.createCart)
 // --------------------------getcart-------------
-route.get("/users/:userId/cart" ,cartController.getCart )
+route.get("/users/:userId/cart" ,middleware.Authenticate ,cartController.getCart )
 // ----------------updateCart-----------------------
-route.put("/users/:userId/cart" ,cartController.updateCart)
+route.put("/users/:userId/cart" ,middleware.Authenticate , middleware.Authorization,cartController.updateCart)
+route.put("/users/:userId/cart" ,middleware.Authenticate , middleware.Authorization,cartController.updateCart)
 // --------------------deleteProduct-----------------------
-route.delete("/users/:userId/cart" ,cartController.deleteCart)
+route.delete("/users/:userId/cart" ,middleware.Authenticate , middleware.Authorization,cartController.deleteCart)
 
 // --------------------createorder-----------------------
-route.post("/users/:userId/orders",orderController.createOrder )
+route.post("/users/:userId/orders",middleware.Authenticate , middleware.Authorization,orderController.createOrder )
 // ----------------updateOrder-----------------------
-route.put("/users/:userId/orders" ,orderController.updateOrder)
+route.put("/users/:userId/orders" ,middleware.Authenticate , middleware.Authorization,orderController.updateOrder)
 
 
 

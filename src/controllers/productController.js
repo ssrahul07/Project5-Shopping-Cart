@@ -12,7 +12,10 @@ const createProduct = async function (req, res) {
   try {
     let requestbody = req.body
     if (Object.keys(requestbody).length == 0)
-      return res.status(400).send({ status: false, msg: "body should not be empty" })
+      return res.status(400).send({ status: false, message: "body should not be empty" })
+
+    let { title, description, price, currencyId, currencyFormat, availableSizes, productImage } = requestbody
+    console.log(requestbody)
     let files = req.files
     let fileUrl = await uploadFile(files[0]);
     requestbody.productImage = fileUrl;
@@ -21,30 +24,28 @@ const createProduct = async function (req, res) {
         .status(400)
         .send({ status: false, message: "No product Image found" });
     }
-    let { title, description, price, currencyId, currencyFormat, availableSizes } = requestbody
-    console.log(requestbody)
     if (!isValid(title))
-      return res.status(400).send({ status: false, msg: "title is required" })
+      return res.status(400).send({ status: false, message: "title is required" })
     let titleAlreadyexist = await productModel.findOne({ title: title })
     if (titleAlreadyexist)
 
-      return res.status(400).send({ status: false, msg: "title already exist" })
+      return res.status(400).send({ status: false, message: "title already exist" })
     console.log(title)
     if (!isValid(description))
-      return res.status(400).send({ status: false, msg: "description is required" })
+      return res.status(400).send({ status: false, message: "description is required" })
     if (!isValid(price))
-      return res.status(400).send({ status: false, msg: "price is required" })
+      return res.status(400).send({ status: false, message: "price is required" })
     // if(!isValid(currencyId))
-    // return res.status(400).send({status:false,msg:"currencyIdis required"})
+    // return res.status(400).send({status:false,message:"currencyIdis required"})
     if (currencyId != "INR")
-      return res.status(400).send({ status: false, msg: "currencyId should be only INR" })
+      return res.status(400).send({ status: false, message: "currencyId should be only INR" })
     // if(!isValid(currencyFormat))
-    // return res.status(400).send({status:false,msg:"currencyFormat is required"})
+    // return res.status(400).send({status:false,message:"currencyFormat is required"})
     if (currencyFormat != "₹")
-      return res.status(400).send({ status: false, msg: "currencyFormat should be only ₹" })
+      return res.status(400).send({ status: false, message: "currencyFormat should be only ₹" })
     // if(style){
     //  if(typeof(style)!=String)
-    //  return res.status(400).send({status:false,msg:" style will be in string form "})
+    //  return res.status(400).send({status:false,message:" style will be in string form "})
     // }
     let enumSize = ["S", "XS", "M", "X", "L", "XXL", "XL"];
     for (let i = 0; i < availableSizes.length; i++) {
@@ -56,13 +57,12 @@ const createProduct = async function (req, res) {
       }
     }
     const create = await productModel.create(requestbody)
-    return res.status(201).send({ status: true, msg: "product created Successfully", data: create })
+    return res.status(201).send({ status: true, message: "Success", data: create })
   } catch (err) {
-    return res.status(500).send({ status: false, msg: err.message })
+    return res.status(500).send({ status: false, message: err.message })
   }
 }
 // ----------------getProductByFilter----------------------
-
 function isValidPrice(value) {
   return /^[1-9]{1}\d*((\.)\d+)?$/.test(value)
 }
@@ -131,7 +131,7 @@ const getProductByFilter = async function (req, res) {
         result.sort((a, b) => (b.price) - (a.price))
       return res.
         status(200).
-        send({ status: true, data: result })
+        send({ status: true, data: result, message: 'Success' })
     } else {
       let result = await productModel.find({ "title": { $regex: `${name}` }, "price": { "$gte": `${priceGreaterThan}`, "$lte": `${priceLessThan}` }, isDeleted: false })
       if (priceSort == 1)
@@ -140,7 +140,7 @@ const getProductByFilter = async function (req, res) {
         result.sort((a, b) => (b.price) - (a.price))
       return res.
         status(200).
-        send({ status: true, data: result })
+        send({ status: true, data: result, message: 'Success' })
     }
   } catch (error) {
     res.
@@ -164,7 +164,7 @@ const ProductById = async function (req, res) {
     if (!product) {
       return res.status(404).send({ send: false, message: "No profile available with this productId or might be deleted" })
     }
-    return res.status(200).send({ status: true, message: "User profile details", data: product })
+    return res.status(200).send({ status: true, message: "Success", data: product })
 
 
   } catch (error) {
@@ -181,7 +181,7 @@ const updateProduct = async function (req, res) {
     let productId = req.params.productId;
 
     if (!mongoose.Types.ObjectId.isValid(productId))
-      return res.status(400).send({ status: false, msg: `please provide valid ${productId}` })
+      return res.status(400).send({ status: false, message: `please provide valid ${productId}` })
 
     const productByproductId = await productModel.findOne({
       _id: productId,
@@ -199,6 +199,7 @@ const updateProduct = async function (req, res) {
       price,
       currencyId,
       currencyFormat,
+
       availableSizes,
       productImage,
     } = data;
@@ -207,7 +208,7 @@ const updateProduct = async function (req, res) {
     if (files && files.length > 0) {
 
       let fileUrl = await uploadFile(files[0]);
-      requestbody.productImage = fileUrl;
+      data.productImage = fileUrl;
     }
 
     if (title) {
@@ -235,7 +236,7 @@ const updateProduct = async function (req, res) {
       if (currencyId != "INR") {
         return res.status(400).send({
           status: false,
-          message: "CurrencyId should be INR",
+          message: "currencyId should be INR",
         });
       }
     }
@@ -270,7 +271,7 @@ const updateProduct = async function (req, res) {
     );
     return res.status(200).send({
       status: true,
-      message: "product details updated",
+      message: "Update product details is successful",
       data: updatedData,
     });
   } catch (err) {
@@ -291,9 +292,9 @@ const deleteProduct = async function (req, res) {
     let productId = req.params.productId;
     if (!mongoose.Types.ObjectId.isValid(productId)) { return res.status(400).send({ status: false, message: `${productId} is not valid` }) }
     let productIdInDb = await productModel.findOne({ _id: productId, isDeleted: false })
-    if (!productIdInDb) return res.status(400).send({ status: false, msg: "product is deleted or not found" })
+    if (!productIdInDb) return res.status(400).send({ status: false, message: "product is deleted or not found" })
     await productModel.findByIdAndUpdate({ _id: productId }, { $set: { isDeleted: true, deletedAt: Date.now() } }, { new: true })
-    return res.status(200).send({ status: true, msg: "product is deleted successfully" })
+    return res.status(200).send({ status: true, message: "product is deleted successfully" })
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message })
   }

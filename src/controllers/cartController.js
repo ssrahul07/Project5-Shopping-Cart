@@ -73,7 +73,7 @@ const createCart = async function (req, res) {
                 { $set: dataForUpdate }, 
                 { new: true }
             ).populate("items.productId",("price title description productImage availableSizes"))
-            return res.status(200).send({ status: true, message: "Cart updated", data: updateCard })
+            return res.status(201).send({ status: true, message: "Success", data: updateCard })
 
         }
         else {
@@ -159,7 +159,7 @@ const updateCart = async function (req, res) {
             { $set: dataForUpdation }, //confuse in output i.e. in output whether details of product are to be shown or not
             { new: true }
         ).populate("items.productId",("price title description productImage availableSizes"))
-        return res.status(200).send({ status: true, message: "Cart updated", data: updateCard })
+        return res.status(200).send({ status: true, message: "Success", data: updateCard })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });

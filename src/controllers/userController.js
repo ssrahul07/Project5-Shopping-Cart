@@ -252,20 +252,20 @@ const updateProfile = async function (req, res)
       // if(Object.keys(billing).length>0)return res.status(400).send({status:false,message:"in billing there should be either pincode or street or city"})
       // if(Object.keys(shipping).length>0)return res.status(400).send({status:false,message:"in shipping there should be either pincode or street or city"})
       for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i] in address) {
-          if (city in address[arr1[i]]) {
-            if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
+        if (arr1[0] in address) {
+          if (city in address[arr1[0]]) {
+            if (!isValidOnlyCharacters(requestbody.address[arr1[0]].city)) {
               return res.status(400).send({
                 status: false,
-                message: `In ${arr1[i]} , city is invalid`,
+                message: `In ${arr1[0]} , city is invalid`,
               });
             }
           }
-          if (pincode in address[arr1[i]]) {
-            if (!isValidPincode(requestbody.address[arr1[i]].pincode)) {
+          if (pincode in address[arr1[0]]) {
+            if (!isValidPincode(requestbody.address[arr1[0]].pincode)) {
               return res.status(400).send({
                 status: false,
-                message: `In ${arr1[i]} , pincode is invalid`,
+                message: `In ${arr1[0]} , pincode is invalid`,
               });
             }
           }
@@ -280,25 +280,31 @@ const updateProfile = async function (req, res)
         }
 
 
-      }requestbody.address=address
+      }
       
 
     }
 
 
-    const updates = {
-    fname: fname,
-    lname: lname,
-    email: email,
-    profileImage: profileImage,
-    phone: phone,
-    password: password,
-    address: address
-    }
+    // const updates = {
+    // fname: fname,
+    // lname: lname,
+    // email: email,
+    // profileImage: profileImage,
+    // phone: phone,
+    // password: password,
+    // address: address
+    // }
 
 
-    const updatedUser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: { ...updates } }, { new: true })
-    return res.status(200).send({ status: true, message: "data updated successfully", data: updatedUser })
+    let updatedData = await userModel.findOneAndUpdate(
+      { _id:userId },
+      requestbody,
+      {
+        new: true,
+      }
+    );
+    return res.status(200).send({ status: true, message: "Update user profile is successful", data: updatedData})
 
 
 
