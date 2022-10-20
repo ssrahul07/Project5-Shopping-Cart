@@ -51,9 +51,9 @@ const createProduct = async function (req, res) {
       return res.status(400).send({ status: false, message: "currencyFormat is required" })
     if (currencyFormat != "₹")
       return res.status(400).send({ status: false, message: "currencyFormat should be only ₹" })
-    if(style){
-     if(!validation.isValid(style))
-     return res.status(400).send({status:false,message:" style should be valid "})
+    if (style) {
+      if (!validation.isValid(style))
+        return res.status(400).send({ status: false, message: " style should be valid " })
     }
     let enumSize = ["S", "XS", "M", "X", "L", "XXL", "XL"];
     for (let i = 0; i < availableSizes.length; i++) {
@@ -253,19 +253,13 @@ const updateProduct = async function (req, res) {
     }
     if (currencyId) {
       if (currencyId != "INR") {
-        return res.status(400).send({
-          status: false,
-          message: "currencyId should be INR",
-        });
+        return res.status(400).send({ status: false, message: "currencyId should be INR", });
       }
     }
 
     if (currencyFormat) {
       if (currencyFormat != "₹") {
-        return res.status(400).send({
-          status: false,
-          message: "CurrencyFormat should be ₹ ",
-        });
+        return res.status(400).send({status: false,message: "CurrencyFormat should be ₹ ", });
       }
     }
 
@@ -275,8 +269,7 @@ const updateProduct = async function (req, res) {
         if (!enumSize.includes(availableSizes[i])) {
           return res.status(400).send({
             status: false,
-            message: "availableSizes should be-[S, XS,M,X, L,XXL, XL]",
-          });
+            message: "availableSizes should be-[S, XS,M,X, L,XXL, XL]" });
         }
       }
     }

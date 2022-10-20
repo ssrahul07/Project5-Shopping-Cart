@@ -45,7 +45,7 @@ route.delete("/products/:productId" ,productController.deleteProduct)
 route.post("/users/:userId/cart",middleware.Authenticate , middleware.Authorization,cartController.createCart)
 
 // --------------------------getcart-------------------------------
-route.get("/users/:userId/cart" ,middleware.Authenticate ,cartController.getCart )
+route.get("/users/:userId/cart" ,middleware.Authenticate ,middleware.Authorization, cartController.getCart )
 
 // ----------------updateCart--------------------------------------
 route.put("/users/:userId/cart" ,middleware.Authenticate , middleware.Authorization,cartController.updateCart)

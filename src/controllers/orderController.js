@@ -52,6 +52,8 @@ const createOrder = async function (req, res) {
         return res.status(500).send({ status: false, msg: error.message })
     }
 }
+
+// --------------------------------------updateOrder------------------------------------------------------------
 const updateOrder = async function (req, res) {
     try {
         userId = req.params.userId

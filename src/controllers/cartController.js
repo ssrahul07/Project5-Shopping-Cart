@@ -85,6 +85,7 @@ const createCart = async function (req, res) {
     }
 }
 
+// -----------------------------------updateCart-------------------------------------------------------------
 const updateCart = async function (req, res) {
     try {
         const userId = req.params.userId
@@ -143,6 +144,7 @@ const updateCart = async function (req, res) {
     }
 }
 
+// ------------------------------------getCart----------------------------------------------------
 const getCart = async function (req, res) {///price/title/size/image
     try {
         let userId = req.params.userId
@@ -157,6 +159,7 @@ const getCart = async function (req, res) {///price/title/size/image
     }
 }
 
+// -------------------------------------------------------deleteCart-----------------------------------------------
 const deleteCart = async (req, res) => {
     try {
         let userId = req.params.userId
