@@ -43,18 +43,18 @@ const createProduct = async function (req, res) {
       return res.status(400).send({ status: false, message: "price is required" })
     if (!validation.isValidPrice(price))
       return res.status(400).send({ status: false, message: "price should be valid and given in only numbers" })
-    if(!validation.isValid(currencyId))
-    return res.status(400).send({status:false,message:"currencyIdis required"})
+    if (!validation.isValid(currencyId))
+      return res.status(400).send({ status: false, message: "currencyIdis required" })
     if (currencyId != "INR")
       return res.status(400).send({ status: false, message: "currencyId should be only INR" })
-    if(!validation.isValid(currencyFormat))
-    return res.status(400).send({status:false,message:"currencyFormat is required"})
+    if (!validation.isValid(currencyFormat))
+      return res.status(400).send({ status: false, message: "currencyFormat is required" })
     if (currencyFormat != "₹")
       return res.status(400).send({ status: false, message: "currencyFormat should be only ₹" })
-    // if(style){
-    //  if(typeof(style)!=String)
-    //  return res.status(400).send({status:false,message:" style will be in string form "})
-    // }
+    if(style){
+     if(!validation.isValid(style))
+     return res.status(400).send({status:false,message:" style should be valid "})
+    }
     let enumSize = ["S", "XS", "M", "X", "L", "XXL", "XL"];
     for (let i = 0; i < availableSizes.length; i++) {
       if (!enumSize.includes(availableSizes[i])) {
@@ -227,7 +227,7 @@ const updateProduct = async function (req, res) {
       });
     }
     let fileUrl = await uploadFile(files[0]);
-     console.log(files)
+    console.log(files)
     data.productImage = fileUrl;
 
     if (title) {
