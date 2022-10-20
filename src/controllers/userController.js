@@ -41,9 +41,8 @@ const createUser = async function (req, res) {
   try {
     let requestbody = req.body
     let userId = req.query
-    let files = req.files
-    let fileUrl = await uploadFile(files[0]);
-    requestbody.profileImage = fileUrl;
+    let files = req.files;
+    
     if (Object.keys(requestbody).length == 0)
       return res.
         status(400).
@@ -54,15 +53,22 @@ const createUser = async function (req, res) {
         send({ status: false, message: "Invalid entry in Request Query" })
     // Destructering
 
-    const { fname, lname, email, password, phone, address } = requestbody
-    console.log(requestbody)
+    const { fname, lname, email, password, phone, address,profileImage} = requestbody
+    // console.log(requestbody)
+    if (files && files.length > 0) {
 
-    // if(Object.keys(rest).length>0 ) return res.status(400).send({status:false,msg:`you cannot fill these(${Object.keys(rest)}) data`})
+      let fileUrl = await uploadFile(files[0]);
+      requestbody.profileImage = fileUrl;
+    }
+
+    
+
+    // if(Object.keys(rest).length>0 ) return res.status(400).send({status:false,message:`you cannot fill these(${Object.keys(rest)}) data`})
     if (!isValid(fname)) {
-      return res.status(400).send({ status: false, msg: "first name is required" })
+      return res.status(400).send({ status: false, message: "first name is required" })
     }
     if (!isValid(lname)) {
-      return res.status(400).send({ status: false, msg: "last name is required" })
+      return res.status(400).send({ status: false, message: "last name is required" })
     }
     if (!isValid(phone))
       return res.status(400).send({ status: false, message: "phone number must be prasent" })
@@ -85,7 +91,7 @@ const createUser = async function (req, res) {
     let encryptedPassword = bcrypt
       .hash(requestbody.password, saltRound)
       .then((hash) => {
-        console.log(`Hash: ${hash}`);
+        // console.log(`Hash: ${hash}`);
         return hash;
       });
 
@@ -98,10 +104,10 @@ const createUser = async function (req, res) {
     let arr2 = ["street", "city", "pincode"];
     for (let i = 0; i < arr1.length; i++) {
       if (!requestbody.address[arr1[i]])
-        return res.status(400).send({ status: false, msg: `${arr1[i]} is mandatory` });
+        return res.status(400).send({ status: false, message: `${arr1[i]} is mandatory` });
       for (let j = 0; j < arr2.length; j++) {
         if (!requestbody.address[arr1[i]][arr2[j]])
-          return res.status(400).send({ status: false, msg: `In  ${arr1[i]}, ${arr2[j]} is mandatory` });
+          return res.status(400).send({ status: false, message: `In  ${arr1[i]}, ${arr2[j]} is mandatory` });
       }
 
       if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
@@ -124,7 +130,7 @@ const createUser = async function (req, res) {
     return res.status(201).send({ status: true, message: "user Successfully Created", data: result })
   }
   catch (err) {
-    res.status(500).send({ msg: err })
+    res.status(500).send({ message: err.message })
   }
 
 }
@@ -143,11 +149,11 @@ const login = async function (req, res) {
       if (!password.match(passwordregex))
         return res.status(400).send({ status: false, message: "password should be valid" })
       let user = await userModel.findOne({ email: email })
-      console.log(user)
+      // console.log(user)
 
-      if (!user) return res.status(404).send({ status: false, msg: " No such user exists" })
+      if (!user) return res.status(404).send({ status: false, message: " No such user exists" })
       const compare = await bcrypt.compare(password, user.password);
-      if (!compare) return res.status(200).send({ status: false, msg: "incorrect password" })
+      if (!compare) return res.status(200).send({ status: false, message: "incorrect password" })
 
       const token = jwt.sign(
         {
@@ -158,7 +164,7 @@ const login = async function (req, res) {
       res.status(200).send({ status: true, message: "User login successfully", data: { userId: user._id, token: token } });
 
     } else {
-      return res.status(400).send({ status: false, msg: "body can't be empty" })
+      return res.status(400).send({ status: false, message: "body can't be empty" })
     }
 
   } catch (error) {
@@ -190,11 +196,11 @@ const updateProfile = async function (req, res)
   try {
     let userId = req.params["userId"]
     if (!userId)
-      return res.status(400).send({ status: false, msg: `please provide ${userId}` })
+      return res.status(400).send({ status: false, message: `please provide ${userId}` })
     if (!mongoose.Types.ObjectId.isValid(userId))
-      return res.status(400).send({ status: false, msg: `please provide valid ${userId}` })
+      return res.status(400).send({ status: false, message: `please provide valid ${userId}` })
     const userIdIsPresent = await userModel.findById(userId)
-    if (!userIdIsPresent) return res.status(400).send({ status: false, msg: `no such user with this ${userId} exist` })
+    if (!userIdIsPresent) return res.status(400).send({ status: false, message: `no such user with this ${userId} exist` })
     const requestbody = req.body
     let { fname, lname, email, password, phone, address, profileImage, ...rest } = requestbody
     if (Object.keys(req.body).length == 0)
@@ -203,11 +209,11 @@ const updateProfile = async function (req, res)
     // return res.status(400).send({ status: false, message: "Data is required in Request Body" })
     if (fname) {
       if (!isValidOnlyCharacters(fname))
-        return res.status(400).send({ status: false, msg: "first name should be valid" })
+        return res.status(400).send({ status: false, message: "first name should be valid" })
     }
     if (lname) {
       if (!isValidOnlyCharacters(lname))
-        return res.status(400).send({ status: false, msg: "last name should be valid" })
+        return res.status(400).send({ status: false, message: "last name should be valid" })
     }
     if (phone) {
 
@@ -233,7 +239,7 @@ const updateProfile = async function (req, res)
       let encryptedPassword = bcrypt
         .hash(requestbody.password, saltRound)
         .then((hash) => {
-          console.log(`Hash: ${hash}`);
+          // console.log(`Hash: ${hash}`);
           return hash;
         });
 
@@ -241,25 +247,25 @@ const updateProfile = async function (req, res)
     }
     //===========================================ADDRESS==============================================
     if (address) {
-      if(Object.keys(address).length>0)return res.status(400).send({status:false,msg:"in address there should be either billing or shipping"})
+      // if(Object.keys(address).length>0)return res.status(400).send({status:false,message:"in address there should be either billing or shipping"})
       let arr1 = ["shipping", "billing"];
-      // if(Object.keys(billing).length>0)return res.status(400).send({status:false,msg:"in billing there should be either pincode or street or city"})
-      // if(Object.keys(shipping).length>0)return res.status(400).send({status:false,msg:"in shipping there should be either pincode or street or city"})
+      // if(Object.keys(billing).length>0)return res.status(400).send({status:false,message:"in billing there should be either pincode or street or city"})
+      // if(Object.keys(shipping).length>0)return res.status(400).send({status:false,message:"in shipping there should be either pincode or street or city"})
       for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i] in address) {
-          if (city in address[arr1[i]]) {
-            if (!isValidOnlyCharacters(requestbody.address[arr1[i]].city)) {
+        if (arr1[0] in address) {
+          if (city in address[arr1[0]]) {
+            if (!isValidOnlyCharacters(requestbody.address[arr1[0]].city)) {
               return res.status(400).send({
                 status: false,
-                message: `In ${arr1[i]} , city is invalid`,
+                message: `In ${arr1[0]} , city is invalid`,
               });
             }
           }
-          if (pincode in address[arr1[i]]) {
-            if (!isValidPincode(requestbody.address[arr1[i]].pincode)) {
+          if (pincode in address[arr1[0]]) {
+            if (!isValidPincode(requestbody.address[arr1[0]].pincode)) {
               return res.status(400).send({
                 status: false,
-                message: `In ${arr1[i]} , pincode is invalid`,
+                message: `In ${arr1[0]} , pincode is invalid`,
               });
             }
           }
@@ -275,23 +281,30 @@ const updateProfile = async function (req, res)
 
 
       }
+      
 
     }
 
 
-    const updates = {
-    fname: fname,
-    lname: lname,
-    email: email,
-    profileImage: profileImage,
-    phone: phone,
-    password: password,
-    address: address
-    }
+    // const updates = {
+    // fname: fname,
+    // lname: lname,
+    // email: email,
+    // profileImage: profileImage,
+    // phone: phone,
+    // password: password,
+    // address: address
+    // }
 
 
-    const updatedUser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: { ...updates } }, { new: true })
-    return res.status(200).send({ status: true, msg: "data updated successfully", data: updatedUser })
+    let updatedData = await userModel.findOneAndUpdate(
+      { _id:userId },
+      requestbody,
+      {
+        new: true,
+      }
+    );
+    return res.status(200).send({ status: true, message: "Update user profile is successful", data: updatedData})
 
 
 
