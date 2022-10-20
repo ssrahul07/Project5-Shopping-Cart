@@ -19,7 +19,7 @@ aws.config.update({
       };
       s3.upload(uploadParams, function (err, data) {
         if (err) return reject({ error: err });
-  
+        // console.log(data)
         return resolve(data.Location);
       });
     });
