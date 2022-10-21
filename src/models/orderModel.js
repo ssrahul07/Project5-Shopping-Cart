@@ -3,14 +3,15 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const orderSchema = new mongoose.Schema({
     userId: { type: ObjectId, ref: "user", required: true },
+    // items: [{
+    //     productId: {ObjectId, refs to Product model, mandatory},
+    //     quantity: {number, mandatory, min 1}
+    //   }],
     items: [{
         productId: {
             type: ObjectId,
-            productId: {
-                type: ObjectId,
                 ref: 'product',
                 required: true
-            }
         },
         quantity: {
             type: Number,

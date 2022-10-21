@@ -19,7 +19,7 @@ route.get("/user/:userId/profile" , middleware.Authenticate ,userController.getU
 
 
 // ---------------updateUserProfile--------------
-route.put("/user/:userId/profile" ,middleware.Authenticate , middleware.Authorization , userController.updateProfile)
+route.put("/user/:userId/profile",middleware.Authenticate , middleware.Authorization,userController.updateProfile)
 
 // ==========================Product==============================================================
 
@@ -48,7 +48,7 @@ route.put("/products/:productId" ,productController.updateProduct)
 route.post("/users/:userId/cart",middleware.Authenticate , middleware.Authorization,cartController.createCart)
 
 // --------------------------getcart-------------------------------
-route.get("/users/:userId/cart" ,middleware.Authenticate ,cartController.getCart )
+route.get("/users/:userId/cart" ,middleware.Authenticate ,middleware.Authorization, cartController.getCart )
 
 // ----------------updateCart--------------------------------------
 route.put("/users/:userId/cart" ,middleware.Authenticate , middleware.Authorization,cartController.updateCart)
