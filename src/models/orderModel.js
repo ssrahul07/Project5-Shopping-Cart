@@ -1,31 +1,32 @@
-const mongoose = require("mongoose")
+//===================== Import Packages =====================//
+const mongoose = require('mongoose')
 const ObjectId = mongoose.Schema.Types.ObjectId
 
-const orderSchema = new mongoose.Schema({
-    userId: { type: ObjectId, ref: "user", required: true },
-    // items: [{
-    //     productId: {ObjectId, refs to Product model, mandatory},
-    //     quantity: {number, mandatory, min 1}
-    //   }],
-    items: [{
-        productId: {
-            type: ObjectId,
-                ref: 'product',
-                required: true
-        },
-        quantity: {
-            type: Number,
-            required: true
-        },
-    }],
 
+//===================== Create Order's Schema =====================//
+const orderSchema = new mongoose.Schema({
+
+    userId: {
+        type: ObjectId,
+        ref: 'User',
+        required: true
+    },
+    items: [{
+        productId: { type: ObjectId, ref: 'Product', required: true },
+        quantity: { type: Number, required: true, min: 1 },
+        _id: false
+    }],
     totalPrice: {
         type: Number,
-        required: true
+        required: true,
+    },
+    totalItems: {
+        type: Number,
+        required: true,
     },
     totalQuantity: {
         type: Number,
-        required: true
+        required: true,
     },
     cancellable: {
         type: Boolean,
@@ -33,12 +34,11 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        default: 'pending',
-        enum: ["pending", "completed", "cancelled"]
+        enum: ['pending', 'completed', 'cancelled'],
+        default: 'pending'
     },
     deletedAt: {
-        type: Date,
-        default: undefined
+        type: Date
     },
     isDeleted: {
         type: Boolean,
@@ -46,4 +46,7 @@ const orderSchema = new mongoose.Schema({
     }
 
 }, { timestamps: true })
-module.exports = mongoose.model("order", orderSchema);
+
+
+//===================== Module Export =====================//
+module.exports = mongoose.model('Order', orderSchema)

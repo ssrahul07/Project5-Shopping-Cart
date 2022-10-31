@@ -1,51 +1,68 @@
-const jwt = require("jsonwebtoken")
-const mongoose = require("mongoose");
-const userModel = require("../models/userModel")
+//===================== Importing Module and Packages =====================//
+const JWT = require('jsonwebtoken')
 
-// ---------------------------Authentication------------------------------------------------
-const Authenticate = async function (req, res, next) {
+const userModel = require('../Model/userModel')
+
+const validator = require('../Validator/validator')
+
+
+
+//<<<===================== This function used for Authentication =====================>>>//
+const Authentication = async (req, res, next) => {
     try {
-        let token = req.headers["authorization"];
-        // console.log(token)
 
-        if (!token) return res.status(400).send({ status: false, message: "Token must be present in the request header" })
-        token = token.replace("Bearer " , "")
-        // console.log(token)
-        jwt.verify(token , "secretKeyForgroup22", (error, decodedToken) => {
+        //===================== Check Presence of Key with Value in Header =====================//
+        let token = req.headers['authorization']
+        if (!token) { return res.status(400).send({ status: false, message: "Token must be Present." }) }
+        token = token.slice(7)
+        //===================== Verify token & asigning it's value in request body =====================//
+        JWT.verify(token, "We-are-from-Group-22", function (error, decodedToken) {
             if (error) {
-                return res.status(401).send({ status: false, error:error.message })
-            }
-            else {
-                req.decodedToken = decodedToken
+                return res.status(401).send({ status: false, message: "Invalid Token." })
+            } else {
+                req.token = decodedToken
                 next()
             }
         })
+
     } catch (error) {
-        return res.status(500).send({ status: false, message: error.message })
+
+        res.status(500).send({ status: false, error: error.message })
     }
 }
-// -----------------------------------Authorization----------------------------------
-const isValidObjectId = (ObjectId) => {
-    return mongoose.Types.ObjectId.isValid(ObjectId)
-  }
 
-const Authorization = async function (req, res, next) {
+
+
+//<<<=====================This function used for Authorisation(Phase II)=====================>>>//
+const Authorization = async (req, res, next) => {
+
     try {
-        //****USERID VALIDATION***** */
-       const userId=req.params.userId
-       if(!userId) return res.status(400).send({status:false,message:"userId is must"})
-       if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "userId is invalid" });
-       const decodedToken = req.decodedToken
-       const userbyuserId= await userModel.findOne({"_id": userId, isDeleted: false})
-       if(!userbyuserId){
-        return res.status(400).send({status:false,message:`Enter valid userId ${userId}, userId does not found`})
-       }
-       //*****AUTHORIZATION*****
-        if (decodedToken.userId !=userbyuserId._id) return res.status(403).send({ status: false, message: "unauthorize access" });
+
+        //===================== Authorising with userId From Param =====================//
+        let userId = req.params.userId
+
+        //===================== Checking the userId is Valid or Not by Mongoose =====================//
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: `This UserId: ${userId} is not valid!` })
+
+        //===================== Fetching All User Data from DB =====================//
+        let userData = await userModel.findById(userId)
+        if (!userData) return res.status(404).send({ status: false, message: "User Does Not Exist" })
+
+        //x===================== Checking the userId is Authorized Person or Not =====================x//
+        if (userData['_id'].toString() !== req.token.payload.userId) {
+            return res.status(403).send({ status: false, message: "Unauthorized User Access!" })
+        }
+
         next()
+
     } catch (error) {
-        return res.status(500).send({ status: false, message: error.message })
+
+        res.status(500).send({ status: false, error: error.message })
     }
 }
 
-module.exports = {Authenticate , Authorization }
+
+
+       //================================= Module Export ==============================================//
+
+module.exports = { Authentication, Authorization }
